@@ -16,5 +16,6 @@ adjust_provider:
     params:
         description: Fake
         cmd:
-            - touch
-            - "{repo_dir}/fake-adjust.txt"
+            - cp
+            - /tmp/undertow/pom.xml
+            - "{repo_dir}/pom.xml"

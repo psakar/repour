@@ -25,11 +25,10 @@ show_repo_info() {
 	local REPO=$1
 	echo "Show content of repo $REPO"
 	du -s $REPO
-	cd $REPO
 	echo "Branches"
-	git branch -a
+	git -C $REPO branch -a
 	echo "Tags"
-	git -C tag -ln9
+	git -C $REPO tag -ln9
 }
 
 add_tag_to_repour_repo() {
@@ -43,8 +42,7 @@ add_tag_to_repour_repo() {
 
 create_repour_internal_repo() {
 	rm -rf $REPOUR_REPO
-#	declare -a TAGS=("1.0.0.Final" "1.0.1.Final" "1.0.10.Final" "1.0.11.Final" "1.0.12.Final" "1.0.13.Final" "1.0.14.Final" "1.0.15.Final" "1.0.16.Final" "1.0.17.Final" "1.0.18.Final" "1.0.19.Final" "1.0.2.Final" "1.0.3.Final" "1.0.4.Final" "1.0.5.Final" "1.0.6.Final" "1.0.7.Final" "1.0.8.Final" "1.0.9.Final" "1.1.0.Final" "1.1.1.Final" "1.1.2.Final" "1.1.3.Final" "1.1.4.Final" "1.1.5.Final" "1.1.6.Final" "1.1.7.Final" "1.1.8.Final" "1.1.9.Final" "1.2.0.Final" "1.2.1.Final" "1.2.10.Final" "1.2.11.Final" "1.2.12.Final" "1.2.2.Final" "1.2.3.Final" "1.2.4.Final" "1.2.5.Final" "1.2.6.Final" "1.2.7.Final" "1.2.8.Final" "1.2.9.Final" "1.3.0.Final" "1.3.1.Final" "1.3.2.Final" "1.3.3.Final" "1.3.4.Final" "1.3.5.Final" "1.3.6.Final" "1.3.7.Final" "1.3.8.Final" "1.3.9.Final" "1.3.10.Final" "1.3.11.Final" "1.3.12.Final" "1.3.13.Final" "1.3.14.Final" "1.3.15.Final" "1.3.16.Final" "1.3.17.Final" "1.3.18.Final")
-	declare -a TAGS=("1.3.18.Final")
+	declare -a TAGS=("1.0.0.Final" "1.0.1.Final" "1.0.10.Final" "1.0.11.Final" "1.0.12.Final" "1.0.13.Final" "1.0.14.Final" "1.0.15.Final" "1.0.16.Final" "1.0.17.Final" "1.0.18.Final" "1.0.19.Final" "1.0.2.Final" "1.0.3.Final" "1.0.4.Final" "1.0.5.Final" "1.0.6.Final" "1.0.7.Final" "1.0.8.Final" "1.0.9.Final" "1.1.0.Final" "1.1.1.Final" "1.1.2.Final" "1.1.3.Final" "1.1.4.Final" "1.1.5.Final" "1.1.6.Final" "1.1.7.Final" "1.1.8.Final" "1.1.9.Final" "1.2.0.Final" "1.2.1.Final" "1.2.10.Final" "1.2.11.Final" "1.2.12.Final" "1.2.2.Final" "1.2.3.Final" "1.2.4.Final" "1.2.5.Final" "1.2.6.Final" "1.2.7.Final" "1.2.8.Final" "1.2.9.Final" "1.3.0.Final" "1.3.1.Final" "1.3.2.Final" "1.3.3.Final" "1.3.4.Final" "1.3.5.Final" "1.3.6.Final" "1.3.7.Final" "1.3.8.Final" "1.3.9.Final" "1.3.10.Final" "1.3.11.Final" "1.3.12.Final" "1.3.13.Final" "1.3.14.Final" "1.3.15.Final" "1.3.16.Final" "1.3.17.Final" "1.3.18.Final")
 	for TAG in "${TAGS[@]}"
 	do
 		add_tag_to_repour_repo $UPSTREAM_REPO_URL $TAG
@@ -73,10 +71,12 @@ apply_prod_change_to_repour_repo() {
 
 apply_prod_changes() {
 #	declare -a REDHAT_TAGS=("1.3.14.Final-redhat-1" "1.3.16.Final-redhat-1" "1.3.17.Final-redhat-1" "1.3.18.Final-redhat-1")
-	declare -a REDHAT_TAGS=("1.3.18.Final")
+	declare -a REDHAT_TAGS=("1.3.14.Final" "1.3.16.Final" "1.3.17" "1.3.18.Final")
 	for REDHAT_TAG in "${REDHAT_TAGS[@]}"
 	do
-		apply_prod_change_to_repour_repo $INTERNAL_REPO_URL $REDHAT_TAG
+		git -C $INTERNAL_REPO checkout $TAG-redhat-1
+		cp $INTERNAL_REPO/pom.xml $REPOUR_REPO/pom.xml #simulate change
+		apply_prod_change_to_repour_repo $UPSTREAM_REPO_URL $REDHAT_TAG
 	done
 }
 
@@ -88,8 +88,8 @@ apply_prod_changes_orig() {
 	done
 }
 
-#create_internal_repo
-#show_repo_info $INTERNAL_REPO
+create_internal_repo
+show_repo_info $INTERNAL_REPO
 create_repour_internal_repo
 apply_prod_changes
 show_repo_info $REPOUR_REPO
