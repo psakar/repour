@@ -1,0 +1,20 @@
+log:
+    path: !config_relative server.log
+    level: INFO
+bind:
+    address: null
+    port: 7331
+repo_provider:
+    type: local
+    params:
+        root_url: "file:///tmp/repour-test-repos/"
+#adjust_provider:
+#    type: noop
+#    params: {}
+adjust_provider:
+    type: subprocess
+    params:
+        description: Fake
+        cmd:
+            - touch
+            - "{repo_dir}/fake-adjust.txt"
