@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REPOUR_REPO=/tmp/repour-test-repos/undertow
+REPOUR_REPO=/home/development/tmp/repour-test-repos/undertow
 
 
 UPSTREAM_REPO_URL=https://github.com/undertow-io/undertow.git
@@ -52,7 +52,37 @@ create_repour_internal_repo() {
 	do
 		add_tag_to_repour_repo $UPSTREAM_REPO_URL $TAG
 	done
+}
 
+
+add_tag_to_repour_repo() {
+	local REPO_URL=$1
+	local TAG=$2
+	echo "Processing $TAG"
+	echo curl -s -S -H "Content-Type: application/json" -X POST -d '{ "name": "undertow", "type": "git", "ref": "'$TAG'", "url": "'$REPO_URL'" }' http://localhost:7331/pull
+	curl -s -S -H "Content-Type: application/json" -X POST -d '{ "name": "undertow", "type": "git", "ref": "'$TAG'", "url": "'$REPO_URL'" }' http://localhost:7331/pull
+	du -s $REPOUR_REPO	
+}
+
+
+apply_prod_change_to_repour_repo() {
+	local REPO_URL=$1
+	local TAG=$2
+	echo "Processing $TAG"
+	echo -s -S -H "Content-Type: application/json" -X POST -d '{ "name": "undertow", "type": "git", "ref": "'$TAG'", "url": "'$REPO_URL'", "adjust": true}' http://localhost:7331/pull ; echo ""
+	curl -s -S -H "Content-Type: application/json" -X POST -d '{ "name": "undertow", "type": "git", "ref": "'$TAG'", "url": "'$REPO_URL'", "adjust": true}' http://localhost:7331/pull ; echo ""
+	du -s $REPOUR_REPO	
+}
+
+apply_prod_changes() {
+	declare -a REDHAT_TAGS=("1.3.14.Final-redhat-1" "1.3.16.Final-redhat-1" "1.3.17.Final-redhat-1" "1.3.18.Final-redhat-1")
+	for REDHAT_TAG in "${REDHAT_TAGS[@]}"
+	do
+		apply_prod_change_to_repour_repo $INTERNAL_REPO_URL $REDHAT_TAG
+	done
+}
+
+apply_prod_changes_orig() {
 	declare -a REDHAT_TAGS=("1.3.14.Final-redhat-1" "1.3.16.Final-redhat-1" "1.3.17.Final-redhat-1" "1.3.18.Final-redhat-1")
 	for REDHAT_TAG in "${REDHAT_TAGS[@]}"
 	do
